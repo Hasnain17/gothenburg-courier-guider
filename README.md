@@ -2,7 +2,7 @@
 
 A free, single-page web guide for **Wolt and Uber Eats moped couriers in Gothenburg**. It shows where to wait between orders, when demand peaks, and how to get more deliveries with less idle time.
 
-**Live demo:** (https://github.com/Hasnain17/gothenburg-courier-guider/)
+**Live demo:** [Open the courier guide](https://hasnain17.github.io/gothenburg-courier-guider/)
 
 ## Features
 
