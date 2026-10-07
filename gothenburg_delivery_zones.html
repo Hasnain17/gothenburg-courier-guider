@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gothenburg Courier Zones</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#5d6773;--bd:#dde1e6;--ac:#e8590c;--ac2:#0b7285;--land:#eef1f4;--water:#cfe6f2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161a;--card:#1c2228;--tx:#eceff2;--mu:#9aa5b1;--bd:#2c353e;--ac:#ff8a4c;--ac2:#4cc3d9;--land:#222a31;--water:#1d3b4a}}
+:root[data-theme="dark"]{--bg:#12161a;--card:#1c2228;--tx:#eceff2;--mu:#9aa5b1;--bd:#2c353e;--ac:#ff8a4c;--ac2:#4cc3d9;--land:#222a31;--water:#1d3b4a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:.2em 0}h2{font-size:1.15rem;margin:1.6em 0 .5em}
+.sub{color:var(--mu);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:10px 0}
+.now{border-left:5px solid var(--ac)}
+.pill{display:inline-block;background:var(--ac);color:#fff;border-radius:99px;padding:1px 10px;font-size:.8rem;font-weight:600}
+svg{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--bd);background:var(--land)}
+.mk{cursor:pointer}.mk circle.dot{fill:var(--ac2);stroke:#fff;stroke-width:2}
+.mk.sel circle.dot{fill:var(--ac);r:13}
+.mk text{font:600 10px system-ui,sans-serif;fill:var(--tx);paint-order:stroke;stroke:var(--land);stroke-width:3px}
+.mk text.n{fill:#fff;stroke:none;text-anchor:middle;font-size:11px}
+.list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.list button,.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:8px 12px;font:inherit;font-size:.9rem;cursor:pointer}
+.list button.sel,.tabs button.sel{background:var(--ac);border-color:var(--ac);color:#fff}
+.stars{color:var(--ac);letter-spacing:2px}
+.go{display:inline-block;margin-top:8px;background:var(--ac2);color:#fff;text-decoration:none;border-radius:10px;padding:9px 14px;font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:3px;height:150px;margin-top:10px}
+.bars div{flex:1;background:var(--ac2);border-radius:4px 4px 0 0;min-height:2px;opacity:.55}
+.bars div.hi{background:var(--ac);opacity:1}
+.ax{display:flex;gap:3px;font-size:.62rem;color:var(--mu)}.ax span{flex:1;text-align:center}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+ul{padding-left:1.1em;margin:.3em 0}li{margin:.35em 0}
+.note{font-size:.82rem;color:var(--mu)}
+.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--bd);text-align:center;font-size:.9rem;color:var(--mu)}
+.foot p{margin:.2em 0}.foot a{color:var(--ac2);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<h1>🛵 Gothenburg Courier Zones</h1>
+<p class="sub">For Wolt + Uber Eats on a moped, starting from Centrum. Tap a spot on the map, go there, and wait for the next order.</p>
+
+<div class="card now" id="now"></div>
+
+<h2>1 · Where to wait</h2>
+<svg viewBox="0 0 400 330" id="map" role="img" aria-label="Schematic map of Gothenburg delivery zones">
+  <rect x="0" y="62" width="400" height="22" fill="var(--water)"/>
+  <text x="8" y="77" font-size="9" fill="var(--mu)" font-family="system-ui">Göta älv (river)</text>
+  <text x="330" y="22" font-size="9" fill="var(--mu)" font-family="system-ui">HISINGEN</text>
+  <polygon points="110,140 235,130 345,210 300,300 120,300 60,230" fill="var(--ac)" fill-opacity=".10" stroke="var(--ac)" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="190" y="318" font-size="10" fill="var(--ac)" font-weight="700" text-anchor="middle" font-family="system-ui">Core zone: stay inside this outline</text>
+  <g id="heat"></g><g id="pins"></g>
+</svg>
+<p class="note">Schematic map, not to scale. Positions are approximate. It shows relative layout, not exact streets.</p>
+<div class="list" id="list"></div>
+<div class="card" id="detail"></div>
+
+<h2>2 · Peak times</h2>
+<div class="tabs" id="tabs"></div>
+<div class="card">
+  <div class="bars" id="bars"></div><div class="ax" id="ax"></div>
+  <p class="note" id="peaknote" style="margin-bottom:0"></p>
+</div>
+
+<h2>3 · Guidance</h2>
+<div class="card"><ul>
+<li><b>Run both apps at once.</b> Accept one order, then decline the other app's offers until you drop off. Avoid holding two orders from the same hour unless the restaurants are next to each other.</li>
+<li><b>Wait where restaurants cluster,</b> not at home. Brunnsparken, Haga, Linnégatan and Avenyn give short pickups and short drops.</li>
+<li><b>Judge an offer by total time, not distance.</b> A short ride with a slow kitchen is worse than a slightly longer one with a quick pickup. Decline long rides across the river at dinner.</li>
+<li><b>Bad weather = more orders.</b> Rain, cold and snow push demand up. If you can ride safely, those are often your best hours.</li>
+<li><b>Dead time (14:00–16:30):</b> eat, charge your phone, check the bike, or reposition toward Linné/Chalmers before the dinner rush starts.</li>
+<li><b>Use the apps' own demand hints.</b> Both apps show busy areas or boosts. Trust them over this page when they disagree.</li>
+<li><b>Safety:</b> helmet, lights, and slow down on wet tram tracks. Keep insurance and your paperwork in order for self-employed courier work.</li>
+</ul></div>
+<p class="note">All ratings and times are general patterns for a city like Gothenburg, not live data. Test for a week, note your orders per hour per spot, and keep the winners.</p>
+<footer class="foot">
+  <p>Developed by <b>Muhammad Hasnain Altaf</b></p>
+  <p><a href="https://linkedin.com/in/muhammad-hasnain-altaf" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/Hasnain17" target="_blank" rel="noopener">GitHub</a></p>
+</footer>
+</main>
+<script>
+var L=[
+{n:"Brunnsparken / Nordstan",x:205,y:150,s:5,w:{lunch:1,dinner:.95,late:.7,off:.7},t:"11:30–13:30, 17:30–21:00",why:"Biggest restaurant and fast-food cluster, office workers by day and shoppers by evening. Pickups are short and drops spread in every direction.",wait:"Stand near the tram hub at Brunnsparken, off the tram lane.",q:"Brunnsparken Göteborg"},
+{n:"Haga / Järntorget",x:140,y:185,s:5,w:{lunch:.8,dinner:1,late:.8,off:.6},t:"17:30–21:30, weekends all evening",why:"Dense cafés and restaurants next to apartment blocks, so orders come in fast and drops are close.",wait:"Järntorget square, near Linnégatan's start.",q:"Järntorget Göteborg"},
+{n:"Linnéplatsen / Linnégatan",x:140,y:255,s:5,w:{lunch:.6,dinner:1,late:.9,off:.5},t:"17:30–22:00, Fri–Sun late",why:"Packed with restaurants and one of the most populated residential areas. Strong dinner and late-night demand.",wait:"Linnéplatsen, central on the street.",q:"Linnéplatsen Göteborg"},
+{n:"Avenyn / Götaplatsen",x:250,y:215,s:4,w:{lunch:.8,dinner:1,late:.9,off:.5},t:"12:00–13:30, 18:00–22:00",why:"Sit-down restaurants plus takeaway, with hotels and apartments around. Weekend evenings are busiest.",wait:"Lower Avenyn near Kungsportsplatsen.",q:"Avenyn Göteborg"},
+{n:"Chalmers / Johanneberg",x:320,y:265,s:4,w:{lunch:1,dinner:.9,late:1,off:.6},t:"11:30–13:30, 18:00–23:00",why:"Student area: lunch orders on campus days and late-evening orders when people study or hang out.",wait:"Near Chalmersplatsen or Gibraltargatan.",q:"Chalmersplatsen Göteborg"},
+{n:"Vasastan / Heden",x:320,y:190,s:3,w:{lunch:.6,dinner:.9,late:.6,off:.4},t:"17:30–21:00",why:"Residential with decent drop volume, fewer restaurants. Good for drops while repositioning.",wait:"Vasaplatsen.",q:"Vasaplatsen Göteborg"},
+{n:"Majorna",x:70,y:250,s:3,w:{lunch:.4,dinner:.9,late:.6,off:.4},t:"17:30–21:00",why:"Residential, lots of families at dinner. Quieter at lunch, so use it as an evening spot.",wait:"Karl Johansgatan area.",q:"Majorna Göteborg"},
+{n:"Lindholmen (Hisingen)",x:230,y:38,s:2,w:{lunch:1,dinner:.3,late:.1,off:.2},t:"11:30–13:30 weekdays only",why:"Office and tech area, strong at weekday lunch, almost dead otherwise. Crossing the river costs time, so only worth it at lunch.",wait:"Near Lindholmen Science Park.",q:"Lindholmen Göteborg"}
+];
+var D={wd:{name:"Weekdays",v:[3,2,1,1,1,2,4,8,12,15,25,60,95,75,30,22,30,55,90,95,70,40,22,10],note:"Two clear peaks: lunch around 12:00 and dinner 18:00–20:00. Rest is slow."},
+fs:{name:"Fri–Sat",v:[40,30,15,5,2,2,3,5,8,12,20,45,70,60,35,30,40,70,95,100,100,85,65,50],note:"Dinner is longer and stronger, and late-night orders keep coming until after midnight."},
+su:{name:"Sunday",v:[20,10,5,2,1,1,2,3,5,8,15,35,55,50,35,35,50,80,90,80,55,30,15,8],note:"Late start, strong early dinner at 17:00–19:30, and an early finish."}};
+var sel=0,day=0;
+var g=function(i){return document.getElementById(i)};
+function period(h){return h>=11&&h<14?"lunch":h>=17&&h<21?"dinner":(h>=21||h<1)?"late":"off"}
+function pl(h){return h>=11&&h<14?"lunch rush":h>=17&&h<21?"dinner rush":(h>=21||h<1)?"late evening":"quiet period"}
+function renderNow(){var d=new Date(),h=d.getHours(),p=period(h);
+var r=L.map(function(a){return{a:a,v:a.s*a.w[p]}}).sort(function(a,b){return b.v-a.v}).slice(0,2);
+var tip=p=="off"?"It's a quiet window. Reposition toward the core zone and wait for the next rush.":"Wait at the first one. If nothing in about 10 minutes, move to the second.";
+g("now").innerHTML='<span class="pill">Right now · '+('0'+h).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+'</span> <b>'+pl(h)+'</b><br>Best spots: <b>'+r[0].a.n+'</b> then <b>'+r[1].a.n+'</b>.<br><span class="note">'+tip+'</span>'}
+function renderMap(){var h="",p="",l="";
+L.forEach(function(a,i){h+='<circle cx="'+a.x+'" cy="'+a.y+'" r="'+(14+a.s*7)+'" fill="var(--ac)" fill-opacity="'+(0.05+a.s*0.045)+'"/>';
+p+='<g class="mk'+(i==sel?' sel':'')+'" data-i="'+i+'"><circle class="dot" cx="'+a.x+'" cy="'+a.y+'" r="11"/><text class="n" x="'+a.x+'" y="'+(a.y+4)+'">'+(i+1)+'</text><text x="'+(a.x+15)+'" y="'+(a.y+3)+'">'+a.n.split(" /")[0].split(" (")[0]+'</text></g>';
+l+='<button data-i="'+i+'" class="'+(i==sel?'sel':'')+'">'+(i+1)+'. '+a.n.split(" /")[0].split(" (")[0]+'</button>'});
+g("heat").innerHTML=h;g("pins").innerHTML=p;g("list").innerHTML=l}
+function renderDetail(){var a=L[sel],st="";for(var i=0;i<5;i++)st+=i<a.s?"★":"☆";
+g("detail").innerHTML='<b>'+(sel+1)+'. '+a.n+'</b> <span class="stars">'+st+'</span><br><b>Best times:</b> '+a.t+'<br><b>Why:</b> '+a.why+'<br><b>Where to stand:</b> '+a.wait+'<br><a class="go" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a.q)+'">Go there →</a>'}
+function pick(i){sel=+i;renderMap();renderDetail()}
+document.addEventListener("click",function(e){var t=e.target.closest("[data-i]");if(t)pick(t.getAttribute("data-i"));var b=e.target.closest("[data-d]");if(b){day=+b.getAttribute("data-d");renderPeak()}});
+function renderPeak(){var k=["wd","fs","su"][day],o=D[k],t="",b="",a="";
+["wd","fs","su"].forEach(function(x,i){t+='<button data-d="'+i+'" class="'+(i==day?'sel':'')+'">'+D[x].name+'</button>'});
+o.v.forEach(function(v,h){b+='<div class="'+(v>=70?'hi':'')+'" style="height:'+v+'%" title="'+h+':00"></div>';a+='<span>'+(h%3==0?h:'')+'</span>'});
+g("tabs").innerHTML=t;g("bars").innerHTML=b;g("ax").innerHTML=a;g("peaknote").textContent=o.note+" Orange bars = high demand. Estimated pattern, not live data."}
+renderNow();renderMap();renderDetail();renderPeak();
+setInterval(renderNow,15000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)renderNow()});
+</script>
+</body>
+</html>
